@@ -1,14 +1,21 @@
-import tabulate
-import requests
-import json
+import os
+import telebot
+from dotenv import load_dotenv
 
-with open('data.json') as file:
-    data = json.load(file)
+load_dotenv()
 
-print(data['name'])
-print(data['contacts']['telegram'])
+TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
+bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-data['contacts']['vk'] = 'bakasa'
 
-with open('result.json', 'w') as result:
-    json.dump(data, result, indent=2)
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    bot.reply_to(message, "Привет, как дела?")
+
+
+@bot.message_handler(func=lambda m: True)
+def echo_all(message):
+    bot.reply_to(message, message.text)
+
+
+bot.infinity_polling()
