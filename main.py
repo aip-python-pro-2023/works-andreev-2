@@ -1,5 +1,6 @@
 import os
 import telebot
+from telebot import types
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,13 +10,13 @@ bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
+def send_welcome(message: types.Message):
     response = 'Привет\\! Это бот с кулинарной книгой и поиску по рецептам\\. Для помощи отправь /help'
     bot.send_message(message.chat.id, response, parse_mode='MarkdownV2')
 
 
 @bot.message_handler(commands=['help'])
-def send_help(message):
+def send_help(message: types.Message):
     response = """Основные команды:
 
 /recipe \\- найти рецепт по названию и/или по ингредиентам
@@ -28,7 +29,7 @@ def send_help(message):
 
 
 @bot.message_handler(func=lambda m: True)
-def echo_all(message):
+def echo_all(message: types.Message):
     bot.reply_to(message, 'Непонятное сообщение :(')
     send_help(message)
 

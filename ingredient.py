@@ -7,9 +7,26 @@ class Ingredient:
 
     # Статическое поле - поле, которое относится к классу в целом, а не к какому-то объекту
     current_id = 1
+    __id: int
+    __name: str
+    __description: str
+    __type: str
+    __picture: str
+    __calories: float
+    __proteins: float
+    __fats: float
+    __carbohydrates: float
 
     # Конструктор, вызывается при создании объекта класса Ingredient
-    def __init__(self, name, description, ingredient_type, picture, calories, proteins, fats, carbohydrates):
+    def __init__(self,
+                 name: str,
+                 description: str,
+                 ingredient_type: str,
+                 picture: str,
+                 calories: float,
+                 proteins: float,
+                 fats: float,
+                 carbohydrates: float):
         self.__id = Ingredient.current_id
         Ingredient.current_id += 1
         self.__name = name
@@ -45,7 +62,7 @@ class Ingredient:
         return f'Ingredient(id={self.__id}, name={self.__name}, calories={self.__calories}, proteins={self.__proteins}, fats={self.__fats}, carbohydrates={self.__carbohydrates})'
 
     # Проверка на равенство
-    def __eq__(self, other):
+    def __eq__(self, other: 'Ingredient') -> bool:
         return isinstance(other, Ingredient) and self.__name == other.__name
 
     @staticmethod
