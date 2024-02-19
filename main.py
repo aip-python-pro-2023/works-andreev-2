@@ -1,12 +1,20 @@
 import os
 import telebot
-from telebot import types
+from telebot import types, custom_filters
+from telebot.handler_backends import State, StatesGroup
+from telebot.storage import StateMemoryStorage
 from dotenv import load_dotenv
 
 load_dotenv()
+state_storage = StateMemoryStorage()
 
 TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
-bot = telebot.TeleBot(TELEGRAM_TOKEN)
+bot = telebot.TeleBot(TELEGRAM_TOKEN, state_storage=state_storage)
+
+
+class SearchStates(StatesGroup):
+    search_ingredient = State()
+    search_recipe = State()
 
 
 @bot.message_handler(commands=['start'])
@@ -28,10 +36,25 @@ def send_help(message: types.Message):
     bot.send_message(message.chat.id, response, parse_mode='MarkdownV2')
 
 
+@bot.message_handler(commands=['ingredient'])
+def search_ingredients(message: types.Message):
+    response = 'Введите название ингредиента или его часть'
+    bot.set_state(message.from_user.id, SearchStates.search_ingredient)
+    bot.send_message(message.chat.id, response, parse_mode='MarkdownV2')
+
+
+@bot.message_handler(state=SearchStates.search_ingredient)
+def search_ingredient(message: types.Message):
+    response = f'Ингредиенты с названием {message.text} не найдены'
+    bot.delete_state(message.from_user.id)
+    bot.send_message(message.chat.id, response, parse_mode='MarkdownV2')
+
+
 @bot.message_handler(func=lambda m: True)
 def echo_all(message: types.Message):
     bot.reply_to(message, 'Непонятное сообщение :(')
     send_help(message)
 
 
+bot.add_custom_filter(custom_filters.StateFilter(bot))
 bot.infinity_polling()
