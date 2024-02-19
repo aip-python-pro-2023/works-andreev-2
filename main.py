@@ -1,15 +1,21 @@
 import os
 import telebot
 from telebot import types, custom_filters
+from telebot.formatting import escape_markdown
 from telebot.handler_backends import State, StatesGroup
 from telebot.storage import StateMemoryStorage
 from dotenv import load_dotenv
 
+from ingredient import Ingredient, IngredientsRepository
+
 load_dotenv()
 state_storage = StateMemoryStorage()
 
+
 TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
 bot = telebot.TeleBot(TELEGRAM_TOKEN, state_storage=state_storage)
+
+ingredients_repository = IngredientsRepository()
 
 
 class SearchStates(StatesGroup):
@@ -45,9 +51,13 @@ def search_ingredients(message: types.Message):
 
 @bot.message_handler(state=SearchStates.search_ingredient)
 def search_ingredient(message: types.Message):
-    response = f'Ингредиенты с названием {message.text} не найдены'
+    result = ingredients_repository.find(message.text)
+    if result:
+        response = str(result[0])
+    else:
+        response = f'Ингредиенты с названием {message.text} не найдены'
     bot.delete_state(message.from_user.id)
-    bot.send_message(message.chat.id, response, parse_mode='MarkdownV2')
+    bot.send_message(message.chat.id, escape_markdown(response), parse_mode='MarkdownV2')
 
 
 @bot.message_handler(func=lambda m: True)

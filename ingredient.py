@@ -1,12 +1,11 @@
-import recipe
+from typing import Optional
 
+from pysondb import db
 
 class Ingredient:
     # Поле - переменная в классе
     # Метод - функция в классе
 
-    # Статическое поле - поле, которое относится к классу в целом, а не к какому-то объекту
-    current_id = 1
     __id: int
     __name: str
     __description: str
@@ -19,6 +18,7 @@ class Ingredient:
 
     # Конструктор, вызывается при создании объекта класса Ingredient
     def __init__(self,
+                 id: int,
                  name: str,
                  description: str,
                  ingredient_type: str,
@@ -27,8 +27,7 @@ class Ingredient:
                  proteins: float,
                  fats: float,
                  carbohydrates: float):
-        self.__id = Ingredient.current_id
-        Ingredient.current_id += 1
+        self.__id = id
         self.__name = name
         self.__description = description
         self.__type = ingredient_type
@@ -78,37 +77,35 @@ class Ingredient:
             carbohydrates=float(input('Углеводы (на 100 г.): ')),
         )
 
+    def get_json(self):
+        return {
+            'name': self.__name,
+            'description': self.__description,
+            'ingredient_type': self.__type,
+            'picture': self.__picture,
+            'calories': self.__calories,
+            'proteins': self.__proteins,
+            'fats': self.__fats,
+            'carbohydrates': self.__carbohydrates,
+        }
 
-carrot = Ingredient('Морковь', 'Вкусный и полезный овощ', 'Овощ', 'https://vkustorg.com/image/cache/Ovochi_frukty/1460024087-500x500.jpg', 150, 70, 10, 20)
-# carrot.__fats = 5000
-print(carrot)
-print(carrot.get_fats())
-carrot.set_fats(0)
-print(carrot)
 
-# carrot.__fats += 10
+class IngredientsRepository:
+    def __init__(self):
+        self.__database = db.getDb('ingredients.json')
 
-# Через геттер и сеттер
-carrot.set_fats(carrot.get_fats() + 120)
-# Через свойства
-carrot.fats += 120
-print(carrot.fats)
+    def save(self, ingredient: Ingredient) -> None:
+        self.__database.add(ingredient.get_json())
 
-sugar = Ingredient('Сахар', 'Сладкая вещь, с которой не стоит перебарщивать', 'Бакалея', 'https://centrstomatologii.ru/upload/resize_cache/webp/iblock/8b9/fe1rhhjon2lrtjfaqjoejc14elz4xk8s/1300_850_1/wide_4_3_821a7b2af4c4914631b84d86a6cafaad.webp', 250, 0, 0, 100)
-print(sugar)
+    def find(self, name: str) -> Optional[list[Ingredient]]:
+        result = self.__database.reSearch('name', rf'{name}')
+        return [Ingredient(**row) for row in result]
 
-# Не делайте так
-# print(Ingredient.current_id)
-# sugar.current_id += 1
-# print(Ingredient.current_id)
-# print(sugar.current_id)
 
-nice_recipe = recipe.Recipe('Вкусный пирог', [sugar, carrot])
+if __name__ == '__main__':
+    carrot = Ingredient('Морковь', 'Вкусный и полезный овощ', 'Овощ', 'https://vkustorg.com/image/cache/Ovochi_frukty/1460024087-500x500.jpg', 150, 70, 10, 20)
+    sugar = Ingredient('Сахар', 'Сладкая вещь, с которой не стоит перебарщивать', 'Бакалея', 'https://centrstomatologii.ru/upload/resize_cache/webp/iblock/8b9/fe1rhhjon2lrtjfaqjoejc14elz4xk8s/1300_850_1/wide_4_3_821a7b2af4c4914631b84d86a6cafaad.webp', 250, 0, 0, 100)
 
-print(sugar == carrot)
-print(sugar == nice_recipe)
-
-print('Sugar in nice recipe:', sugar in nice_recipe)
-
-bread = Ingredient.create_from_input()
-print(bread)
+    ingredients_repository = IngredientsRepository()
+    ingredients_repository.save(carrot)
+    ingredients_repository.save(sugar)
