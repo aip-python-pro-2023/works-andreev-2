@@ -2,6 +2,7 @@ from typing import Optional
 
 from pysondb import db
 
+
 class Ingredient:
     # Поле - переменная в классе
     # Метод - функция в классе
@@ -18,7 +19,6 @@ class Ingredient:
 
     # Конструктор, вызывается при создании объекта класса Ingredient
     def __init__(self,
-                 id: int,
                  name: str,
                  description: str,
                  ingredient_type: str,
@@ -26,7 +26,8 @@ class Ingredient:
                  calories: float,
                  proteins: float,
                  fats: float,
-                 carbohydrates: float):
+                 carbohydrates: float,
+                 id: Optional[int] = None):
         self.__id = id
         self.__name = name
         self.__description = description
@@ -103,8 +104,11 @@ class IngredientsRepository:
 
 
 if __name__ == '__main__':
-    carrot = Ingredient('Морковь', 'Вкусный и полезный овощ', 'Овощ', 'https://vkustorg.com/image/cache/Ovochi_frukty/1460024087-500x500.jpg', 150, 70, 10, 20)
-    sugar = Ingredient('Сахар', 'Сладкая вещь, с которой не стоит перебарщивать', 'Бакалея', 'https://centrstomatologii.ru/upload/resize_cache/webp/iblock/8b9/fe1rhhjon2lrtjfaqjoejc14elz4xk8s/1300_850_1/wide_4_3_821a7b2af4c4914631b84d86a6cafaad.webp', 250, 0, 0, 100)
+    carrot = Ingredient('Морковь', 'Вкусный и полезный овощ', 'Овощ',
+                        'https://vkustorg.com/image/cache/Ovochi_frukty/1460024087-500x500.jpg', 150, 70, 10, 20)
+    sugar = Ingredient('Сахар', 'Сладкая вещь, с которой не стоит перебарщивать', 'Бакалея',
+                       'https://centrstomatologii.ru/upload/resize_cache/webp/iblock/8b9/fe1rhhjon2lrtjfaqjoejc14elz4xk8s/1300_850_1/wide_4_3_821a7b2af4c4914631b84d86a6cafaad.webp',
+                       250, 0, 0, 100)
 
     ingredients_repository = IngredientsRepository()
     ingredients_repository.save(carrot)
